@@ -3,82 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clima </title>
+    <meta name="description" content="Consulte o clima de qualquer cidade do mundo em tempo real com o WeatherNow.">
+    <meta name="theme-color" content="#1c1f26">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <title>WeatherNow — Clima em Tempo Real</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="src/Styles/style.css">
 </head>
 <body>
-    <div class="all">
-    <div class="container">
-        <form class="search">
-            <i class="fa-solid fa-location-dot"></i>
-            <input type="search"  name="city-name" class="city-name" placeholder="Buscar cidade">
-            <button type="submit">
-                <i class="fa-solid fa-magnifying-glass"></i>
-            </button>
-        </form>
-        <div class="weather">
-            <h1 class="tittle"> Petrolina, BR</h1>
-            <div class="infos">
-                <div class="temp">
-                    <img class="temp-img" src="" alt="">
-                    <div>
-                        <p class="temp-value">
-                            32 <sup> ºC</sup>
-                        </p>
-                        <p class="temp-description">
-                            Ensolarado
-                        </p>
-                    </div>
-                </div>
-                <div class="other-infos">
-                    <div class="info">
-                        <i id="temp-max-icon" class="fa-solid fa-temperature-high"></i>
-                        <div>
-                            <h2>Temp - Max</h2>
-                            <p class="temp-max">32 <sup> ºC</sup></p>
-                        </div>
-                    </div>
-                    <div class="info">
-                        <i id="temp-min-icon" class="fa-solid fa-temperature-high"></i>
-                        <div>
-                            <h2>Temp - Min</h2>
-                            <p class="temp-min">12 <sup> ºC</sup></p>
-                        </div>
-                    </div>
-                    <div class="info">
-                        <i id="humidity-icon" class="fa-solid fa-droplet"></i>
-                        <div>
-                            <h2>Humidade</h2>
-                            <p class="humidity">50%</p>
-                        </div>
-                    </div>
-                    <div class="info">
-                        <i id="wind-icon" class="fa-solid fa-wind"></i>
-                        <div>
-                            <h2>Vento</h2>
-                            <p class="wind">50 Km/h</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="alert">
+    <div class="page-wrapper">
+        <main class="container" id="main-card">
+            <form class="search" id="search-form" autocomplete="off" role="search">
+                <label for="city-input" class="sr-only">Nome da cidade</label>
+                <i class="fa-solid fa-location-dot search-icon" aria-hidden="true"></i>
+                <input
+                    type="search"
+                    id="city-input"
+                    name="city-name"
+                    class="city-name"
+                    placeholder="Buscar cidade..."
+                    aria-label="Buscar cidade"
+                >
+                <button type="submit" id="search-btn" aria-label="Pesquisar">
+                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                </button>
+            </form>
 
-        </div>
-        
-        <div class="allwaves">
-            <div class="wave wave1"></div>
-            <div class="wave wave2"></div>
-            <div class="wave wave3"></div>
-            <div class="wave wave4"></div>
-        </div>
-        
+            <div class="alert" id="alert-box" role="alert" aria-live="polite"></div>
+
+            <div class="loader" id="loader" aria-hidden="true">
+                <div class="spinner"></div>
+                <span>Buscando clima...</span>
+            </div>
+
+            <section class="weather" id="weather-card" aria-label="Informacoes climaticas">
+                <div class="weather-header">
+                    <h1 class="city-title" id="city-title">-</h1>
+                    <p class="date-label" id="date-label"></p>
+                </div>
+
+                <div class="temp-main">
+                    <img class="temp-img" id="temp-img" src="" alt="Icone do clima">
+                    <div class="temp-body">
+                        <p class="temp-value" id="temp-value">-</p>
+                        <p class="temp-description" id="temp-description">-</p>
+                    </div>
+                </div>
+
+                <hr class="divider" aria-hidden="true">
+
+                <div class="details-grid">
+                    <div class="detail-card" id="card-temp-max">
+                        <div class="detail-icon heat">
+                            <i class="fa-solid fa-temperature-arrow-up" aria-hidden="true"></i>
+                        </div>
+                        <div class="detail-info">
+                            <span class="detail-label">Maxima</span>
+                            <span class="detail-value" id="temp-max">-</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-card" id="card-temp-min">
+                        <div class="detail-icon cold">
+                            <i class="fa-solid fa-temperature-arrow-down" aria-hidden="true"></i>
+                        </div>
+                        <div class="detail-info">
+                            <span class="detail-label">Minima</span>
+                            <span class="detail-value" id="temp-min">-</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-card" id="card-humidity">
+                        <div class="detail-icon humid">
+                            <i class="fa-solid fa-droplet" aria-hidden="true"></i>
+                        </div>
+                        <div class="detail-info">
+                            <span class="detail-label">Humidade</span>
+                            <span class="detail-value" id="humidity">-</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-card" id="card-wind">
+                        <div class="detail-icon wind-icon">
+                            <i class="fa-solid fa-wind" aria-hidden="true"></i>
+                        </div>
+                        <div class="detail-info">
+                            <span class="detail-label">Vento</span>
+                            <span class="detail-value" id="wind">-</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="app-footer">
+            <p>&copy; <span id="year"></span> Christian Gabriel</p>
+        </footer>
     </div>
-    <div class="christian">
-        &copy; Christian Gabriel
-    </div>
-</div>
 
     <script src="src/Scripts/Script.js"></script>
 </body>

@@ -1,55 +1,100 @@
-const search = document.querySelector(".search");
-const alerta = document.querySelector(".alert");
+const searchForm  = document.getElementById('search-form');
+const cityInput   = document.getElementById('city-input');
+const alertBox    = document.getElementById('alert-box');
+const loader      = document.getElementById('loader');
+const weatherCard = document.getElementById('weather-card');
 
-function showItems(json) {
-    document.querySelector(".weather").classList.add('show');
-    
-    document.querySelector(".tittle").textContent = `${json.name}, ${json.sys.country}`;
-    document.querySelector(".temp-value").innerHTML = `${json.main.temp} <sup>ºC</sup>`;
-    document.querySelector(".temp-description").textContent = json.weather[0].description;
-    document.querySelector(".temp-max").innerHTML = `${json.main.temp_max} <sup>ºC</sup>`;
-    document.querySelector(".temp-min").innerHTML = `${json.main.temp_min} <sup>ºC</sup>`;
-    document.querySelector(".humidity").textContent = `${json.main.humidity}%`;
-    document.querySelector(".wind").textContent = `${json.wind.speed} Km/h`;
-    document.querySelector(".temp-img").src = `http://openweathermap.org/img/wn/${json.weather[0].icon}@2x.png`;
+document.getElementById('year').textContent = new Date().getFullYear();
+
+const API_KEY = '6ec4b5e46e5fc2a8e54e202b8d09fd72';
+
+function getFormattedDate() {
+    return new Date().toLocaleDateString('pt-BR', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    });
 }
 
-function ShowAlert() {
-    document.querySelector(".weather").classList.remove('show');
-    alerta.innerHTML = '<strong>Erro: </strong> Por favor, insira o nome da cidade';
+function msToKmh(ms) {
+    return Math.round(ms * 3.6);
 }
 
-function coderror() {
-    alerta.innerHTML = '<strong>Erro: </strong> Não foi possível encontrar a cidade';
+function showWeather(data) {
+    document.getElementById('city-title').textContent = `${data.name}, ${data.sys.country}`;
+    document.getElementById('date-label').textContent = getFormattedDate();
+    document.getElementById('temp-value').innerHTML = `${Math.round(data.main.temp)}<sup>°C</sup>`;
+    document.getElementById('temp-description').textContent = data.weather[0].description;
+    document.getElementById('temp-max').innerHTML = `${Math.round(data.main.temp_max)}<sup>°C</sup>`;
+    document.getElementById('temp-min').innerHTML = `${Math.round(data.main.temp_min)}<sup>°C</sup>`;
+    document.getElementById('humidity').textContent = `${data.main.humidity}%`;
+    document.getElementById('wind').textContent = `${msToKmh(data.wind.speed)} km/h`;
+
+    const iconEl = document.getElementById('temp-img');
+    iconEl.src = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+    iconEl.alt = data.weather[0].description;
+
+    weatherCard.classList.add('show');
 }
 
-search.addEventListener("submit", async function(event) {
+function hideWeather() {
+    weatherCard.classList.remove('show');
+}
+
+function showAlert(message) {
+    alertBox.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> ${message}`;
+}
+
+function clearAlert() {
+    alertBox.innerHTML = '';
+}
+
+function setLoading(isLoading) {
+    loader.setAttribute('aria-hidden', String(!isLoading));
+    loader.classList.toggle('visible', isLoading);
+}
+
+searchForm.addEventListener('submit', async function (event) {
     event.preventDefault();
 
-    const cityName = document.querySelector(".city-name");
-    const CityNameValue = cityName.value.trim();
+    const cityValue = cityInput.value.trim();
 
-    if (CityNameValue === '') {
-        ShowAlert();
+    if (!cityValue) {
+        hideWeather();
+        showAlert('Por favor, insira o nome de uma cidade.');
         return;
     }
 
-    const Key = '6ec4b5e46e5fc2a8e54e202b8d09fd72';
-    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(CityNameValue)}&appid=${Key}&units=metric&lang=pt_br`;
+    clearAlert();
+    hideWeather();
+    setLoading(true);
+
+    const apiUrl =
+        `https://api.openweathermap.org/data/2.5/weather` +
+        `?q=${encodeURIComponent(cityValue)}` +
+        `&appid=${API_KEY}` +
+        `&units=metric` +
+        `&lang=pt_br`;
 
     try {
         const response = await fetch(apiUrl);
-        const json = await response.json();
+        const data = await response.json();
 
         if (response.ok) {
-            showItems(json);
-            alerta.innerHTML = '';
-            alerta.innerHTML = '';
+            showWeather(data);
+            clearAlert();
+        } else if (response.status === 404) {
+            showAlert('Cidade nao encontrada. Verifique o nome e tente novamente.');
+        } else if (response.status === 401) {
+            showAlert('Chave de API invalida. Contate o administrador.');
         } else {
-            document.querySelector(".weather").classList.remove('show');
-            coderror();
+            showAlert(`Erro inesperado (${response.status}). Tente novamente.`);
         }
     } catch (error) {
-        coderror();
+        console.error('Erro ao buscar clima:', error);
+        showAlert('Falha na conexao. Verifique sua internet e tente novamente.');
+    } finally {
+        setLoading(false);
     }
 });
