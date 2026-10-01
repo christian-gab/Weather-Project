@@ -1,0 +1,8 @@
+{
+  "name": "weather-project",
+  "version": "1.0.0",
+  "description": "Consulta de clima em tempo real",
+  "engines": {
+    "node": ">=24.x"
+  }
+}
